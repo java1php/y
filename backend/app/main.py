@@ -253,6 +253,10 @@ async def update_document(doc_id: str, doc: DocumentCreate):
         return {"success": True, "document": db.documents[doc_id]}
     return {"error": "文档不存在"}
 
+class GameRoomCreate(BaseModel):
+    name: str
+    game_type: str = "tictactoe"
+
 # ========== 游戏系统（井字棋） ==========
 @app.get("/api/games/rooms")
 async def get_game_rooms():
@@ -269,13 +273,13 @@ async def get_game_rooms():
     return {"rooms": rooms}
 
 @app.post("/api/games/rooms")
-async def create_game_room(name: str, game_type: str = "tictactoe"):
+async def create_game_room(request: GameRoomCreate):
     """创建游戏房间"""
     room_id = str(uuid.uuid4())[:8]
     db.game_rooms[room_id] = {
         "id": room_id,
-        "name": name,
-        "game_type": game_type,
+        "name": request.name,
+        "game_type": request.game_type,
         "players": [],
         "status": "waiting",
         "board": [""] * 9,  # 井字棋 3x3
